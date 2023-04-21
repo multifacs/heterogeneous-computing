@@ -16,12 +16,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\utils.hpp" />
+    <ClInclude Include="src\main.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5ed4a26e-fbcc-470f-afcd-4b23aa1da385}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>_02_integral</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>2_integral</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

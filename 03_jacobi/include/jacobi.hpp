@@ -14,11 +14,11 @@ struct CompResult {
     float accuracy;
 };
 
-CompResult calculateWithAccessor(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
+CompResult jacoby_accessors(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
                                  float accuracyTarget, sycl::queue &queue);
-CompResult calculateWithSharedMemory(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
+CompResult jacoby_shared(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
                                      float accuracyTarget, sycl::queue &queue);
-CompResult calculateWithDeviceMemory(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
+CompResult jacoby_device(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
                                      float accuracyTarget, sycl::queue &queue);
 
 } // namespace jacobi
