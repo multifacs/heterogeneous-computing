@@ -8,19 +8,21 @@ using namespace sycl;
 int main() {
     vector<platform> platforms = platform::get_platforms();
     for (size_t i = 0; i < platforms.size(); i++) {
-        cout << "Platform №" << i << ": " << platforms[i].get_info<info::platform::name>() << "\n";
+        cout << "[Platform] - " << i << ": " << platforms[i].get_info<info::platform::name>() << "\n";
         vector<device> devices = platforms[i].get_devices();
         for (size_t j = 0; j < devices.size(); j++) {
-            cout << "\tDevice №" << j << ": " << devices[j].get_info<info::device::name>() << "\n";
+            cout << "\t[Device] - " << j << ": " << devices[j].get_info<info::device::name>() << "\n";
         }
+
+        cout << "\n";
     }
-    cout << "\n";
+
 
     constexpr int globalSize = 5;
     for (size_t i = 0; i < platforms.size(); i++) {
         vector<device> devices = platforms[i].get_devices();
         for (size_t j = 0; j < devices.size(); j++) {
-            cout << devices[j].get_info<info::device::name>() << "\n";
+            cout << "[" << devices[j].get_info<info::device::name>() << "]\n";
             try {
                 queue q(devices[j]);
                 q.submit([&](handler &h) {

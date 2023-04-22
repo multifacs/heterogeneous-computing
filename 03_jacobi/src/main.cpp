@@ -19,8 +19,11 @@ int main(int argc, char *argv[]) {
     int iterationsLimit = std::atoi(argv[3]);
     std::string_view deviceType = argv[4];
 
+    
+    std::cout << " ****** Calculating Jacoby Method ******\n";
+
     sycl::queue queue = utils::createDeviceQueueByType(deviceType);
-    std::cout << "Device: " << queue.get_device().get_info<sycl::info::device::name>() << std::endl << std::endl;
+    std::cout << "[Device: " << queue.get_device().get_info<sycl::info::device::name>() << "]" << std::endl << std::endl;
 
     auto [A, b] = utils::generateEquationSystem(rowsCount);
 
@@ -31,8 +34,7 @@ int main(int argc, char *argv[]) {
     {
         auto result = jacobi::calculateWithAccessor(A, b, iterationsLimit, accuracyTarget, queue);
         float deviation = utils::deviation(A, b, result.x);
-        std::cout << " - Accessor\n\tTime all: " << result.elapsed_all << " ms \n\tTime kernel: " << result.elapsed_kernel
-                  << " ms\n\tError: " << deviation << std::endl;
+        std::cout << "  [Accessor]\n\tTime all: " << result.elapsed_all << " ms\n\tError: " << deviation << std::endl;
     }
 
     {
@@ -42,8 +44,7 @@ int main(int argc, char *argv[]) {
     {
         auto result = jacobi::calculateWithSharedMemory(A, b, iterationsLimit, accuracyTarget, queue);
         float deviation = utils::deviation(A, b, result.x);
-        std::cout << " - Shared\n\tTime all: " << result.elapsed_all << " ms\n\tTime kernel: " << result.elapsed_kernel
-                  << " ms\n\tDeviation: " << deviation << std::endl;
+        std::cout << "  [Shared]\n\tTime all: " << result.elapsed_all << " ms\n\tError: " << deviation << std::endl;
     }
 
     {
@@ -52,7 +53,6 @@ int main(int argc, char *argv[]) {
     {
         auto result = jacobi::calculateWithDeviceMemory(A, b, iterationsLimit, accuracyTarget, queue);
         float deviation = utils::deviation(A, b, result.x);
-        std::cout << " - Device\n\tTime all: " << result.elapsed_all << " ms\n\tTime kernel: " << result.elapsed_kernel
-                  << " ms\n\tDeviation: " << deviation << std::endl;
+        std::cout << "  [Device]\n\tTime all: " << result.elapsed_all << " ms\n\tError: " << deviation << std::endl;
     }
 }

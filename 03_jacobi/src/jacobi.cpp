@@ -6,62 +6,63 @@
 
 namespace jacobi {
 
-CompResult calculateWithAccessor(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
-                                 float accuracyTarget, sycl::queue &queue) {
-    CompResult result;
-    result.iter = 0;
-    result.accuracy = 0;
+CompResult calculateWithAccessor(const std::vector<float> &matrixA, const std::vector<float> &vectorB, int iterLimit,
+                                 float accuracy, sycl::queue &deviceQueue) {
+    CompResult compResult;
+    compResult.iter = 0;
+    compResult.accuracy = 0;
 
-    std::vector<float> x0;
-    std::vector<float> x1 = b;
+    std::vector<float> x0Vector;
+    std::vector<float> x1Vector = vectorB;
 
-    sycl::buffer<float> aBuffer(A.data(), A.size());
-    sycl::buffer<float> bBuffer(b.data(), b.size());
-    sycl::buffer<float> x0Buffer(x0.data(), b.size());
-    sycl::buffer<float> x1Buffer(x1.data(), b.size());
+    sycl::buffer<float> bufferA(matrixA.data(), matrixA.size());
+    sycl::buffer<float> bufferB(vectorB.data(), vectorB.size());
+    sycl::buffer<float> bufferX0(x0Vector.data(), vectorB.size());
+    sycl::buffer<float> bufferX1(x1Vector.data(), vectorB.size());
 
-    size_t globalSize = b.size();
+    size_t globalSize = vectorB.size();
 
-    double begin = omp_get_wtime();
+    double startTime = omp_get_wtime();
 
     {
         do {
-          std::cout << "x1: " << (x1.size() > 0 ? x1[0] : 0) << "\n";
-            x0 = x1;
+            x0Vector = x1Vector;
 
-            sycl::event event = queue.submit([&](sycl::handler &h) {
-                auto aHandle = aBuffer.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(h);
-                auto bHandle = bBuffer.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(h);
-                auto x0Handle = x0Buffer.get_access<sycl::access::mode::read_write>(h);
-                auto x1Handle = x1Buffer.get_access<sycl::access::mode::read_write>(h);
+            sycl::event deviceEvent = deviceQueue.submit([&](sycl::handler &handler) {
+                auto handleA =
+                    bufferA.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(handler);
+                auto handleB =
+                    bufferB.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(handler);
+                auto handleX0 = bufferX0.get_access<sycl::access::mode::read_write>(handler);
+                auto handleX1 = bufferX1.get_access<sycl::access::mode::read_write>(handler);
 
-                h.parallel_for(sycl::range<1>(globalSize), [=](sycl::item<1> item) {
-                    int i = item.get_id(0);
-                    int n = item.get_range(0);
-                    float s = 0;
-                    for (int j = 0; j < n; j++)
-                        s += i != j ? aHandle[j * n + i] * x0Handle[j] : 0;
-                    x1Handle[i] = (bHandle[i] - s) / aHandle[i * n + i];
-                    x0Handle[i] = x1Handle[i];
+                handler.parallel_for(sycl::range<1>(globalSize), [=](sycl::item<1> item) {
+                    int indexI = item.get_id(0);
+                    int rangeN = item.get_range(0);
+                    float sum = 0;
+                    for (int indexJ = 0; indexJ < rangeN; indexJ++)
+                        sum += indexI != indexJ ? handleA[indexJ * rangeN + indexI] * handleX0[indexJ] : 0;
+                    handleX1[indexI] = (handleB[indexI] - sum) / handleA[indexI * rangeN + indexI];
+                    handleX0[indexI] = handleX1[indexI];
                 });
             });
-            queue.wait();
+            deviceQueue.wait();
 
-            auto start = event.get_profiling_info<sycl::info::event_profiling::command_start>();
-            auto end = event.get_profiling_info<sycl::info::event_profiling::command_end>();
-            result.elapsed_kernel += (end - start) / 1e+6;
+            auto startTimestamp = deviceEvent.get_profiling_info<sycl::info::event_profiling::command_start>();
+            auto endTimestamp = deviceEvent.get_profiling_info<sycl::info::event_profiling::command_end>();
+            compResult.elapsed_kernel += (endTimestamp - startTimestamp) / 1e+6;
 
-            result.accuracy = utils::norm(x0, x1);
-            result.iter++;
-        } while (result.iter < iterationsLimit && result.accuracy > accuracyTarget);
+            compResult.accuracy = utils::norm(x0Vector, x1Vector);
+            compResult.iter++;
+        } while (compResult.iter < iterLimit && compResult.accuracy > accuracy);
     }
 
-    double end = omp_get_wtime();
+    double endTime = omp_get_wtime();
 
-    result.elapsed_all = (end - begin) * 1000.;
-    result.x = x1;
+    compResult.elapsed_all = (endTime - startTime) * 1000.;
+    compResult.x = x1Vector;
 
-    return result;
+    return compResult;
 }
 
 CompResult calculateWithSharedMemory(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
