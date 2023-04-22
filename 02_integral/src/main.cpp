@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
 
     sycl::queue queue = utils::createDeviceQueueByType(deviceType);
 
-    std::cout << "Size: " << stepsCount << " x " << stepsCount << std::endl;
-    std::cout << "Device: " << queue.get_device().get_info<sycl::info::device::name>() << std::endl << std::endl;
+    std::cout << " * Steps: " << stepsCount << " x " << stepsCount << std::endl;
+    std::cout << " * Device: " << queue.get_device().get_info<sycl::info::device::name>() << std::endl;
 
     uint64_t start = 0;
     uint64_t end = 0;
@@ -60,8 +60,8 @@ int main(int argc, char *argv[]) {
 
     float computed = std::accumulate(result.begin(), result.end(), 0.f) * dx * dy;
 
-    std::cout << "Kernel time: " << (end - start) / 1e+6 << " ms" << std::endl;
-    std::cout << "Expected: " << expected << std::endl;
-    std::cout << "Computed: " << computed << std::endl;
-    std::cout << "Error: " << std::abs(computed - expected) << std::endl;
+    std::cout << " *** Kernel time: " << (end - start) / 1e+6 << " ms" << std::endl;
+    std::cout << " *** Expected: " << expected << std::endl;
+    std::cout << " *** Computed: " << computed << std::endl;
+    std::cout << " *** Error: " << std::abs(computed - expected) << std::endl;
 }

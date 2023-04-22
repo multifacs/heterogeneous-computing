@@ -26,14 +26,16 @@ CompResult calculateWithAccessor(const std::vector<float> &A, const std::vector<
 
     {
         do {
-          std::cout << "x1: " << (x1.size() > 0 ? x1[0] : 0) << "\n";
             x0 = x1;
+
 
             sycl::event event = queue.submit([&](sycl::handler &h) {
                 auto aHandle = aBuffer.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(h);
                 auto bHandle = bBuffer.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(h);
                 auto x0Handle = x0Buffer.get_access<sycl::access::mode::read_write>(h);
                 auto x1Handle = x1Buffer.get_access<sycl::access::mode::read_write>(h);
+
+
 
                 h.parallel_for(sycl::range<1>(globalSize), [=](sycl::item<1> item) {
                     int i = item.get_id(0);
@@ -43,6 +45,9 @@ CompResult calculateWithAccessor(const std::vector<float> &A, const std::vector<
                         s += i != j ? aHandle[j * n + i] * x0Handle[j] : 0;
                     x1Handle[i] = (bHandle[i] - s) / aHandle[i * n + i];
                     x0Handle[i] = x1Handle[i];
+
+
+
                 });
             });
             queue.wait();
