@@ -18,7 +18,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>_01_hello</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>01_hello_world</ProjectName>
+    <ProjectName>1_hello</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     sycl::queue queue = utils::createDeviceQueueByType(deviceType);
 
     std::cout << "Size: " << stepsCount << " x " << stepsCount << std::endl;
-    std::cout << "Device: " << queue.get_device().get_info<sycl::info::device::name>() << std::endl << std::endl;
+    std::cout << "Device: " << queue.get_device().get_info<sycl::info::device::name>() << std::endl;
 
     uint64_t start = 0;
     uint64_t end = 0;

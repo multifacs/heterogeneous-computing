@@ -11,30 +11,23 @@ CompResult calculateWithAccessor(const std::vector<float> &A, const std::vector<
     CompResult result;
     result.iter = 0;
     result.accuracy = 0;
-
     std::vector<float> x0;
     std::vector<float> x1 = b;
-
     sycl::buffer<float> aBuffer(A.data(), A.size());
     sycl::buffer<float> bBuffer(b.data(), b.size());
     sycl::buffer<float> x0Buffer(x0.data(), b.size());
     sycl::buffer<float> x1Buffer(x1.data(), b.size());
-
     size_t globalSize = b.size();
-
     double begin = omp_get_wtime();
 
     {
         do {
-          std::cout << "x1: " << (x1.size() > 0 ? x1[0] : 0) << "\n";
             x0 = x1;
-
             sycl::event event = queue.submit([&](sycl::handler &h) {
                 auto aHandle = aBuffer.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(h);
                 auto bHandle = bBuffer.get_access<sycl::access::mode::read, sycl::access::target::constant_buffer>(h);
                 auto x0Handle = x0Buffer.get_access<sycl::access::mode::read_write>(h);
                 auto x1Handle = x1Buffer.get_access<sycl::access::mode::read_write>(h);
-
                 h.parallel_for(sycl::range<1>(globalSize), [=](sycl::item<1> item) {
                     int i = item.get_id(0);
                     int n = item.get_range(0);
@@ -50,7 +43,6 @@ CompResult calculateWithAccessor(const std::vector<float> &A, const std::vector<
             auto start = event.get_profiling_info<sycl::info::event_profiling::command_start>();
             auto end = event.get_profiling_info<sycl::info::event_profiling::command_end>();
             result.elapsed_kernel += (end - start) / 1e+6;
-
             result.accuracy = utils::norm(x0, x1);
             result.iter++;
         } while (result.iter < iterationsLimit && result.accuracy > accuracyTarget);
