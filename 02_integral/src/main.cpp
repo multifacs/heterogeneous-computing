@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
 
     sycl::queue queue = utils::createDeviceQueueByType(deviceType);
 
-    std::cout << "Size: " << stepsCount << " x " << stepsCount << std::endl;
-    std::cout << "Device: " << queue.get_device().get_info<sycl::info::device::name>() << std::endl << std::endl;
+    std::cout << " . Counting size: " << stepsCount << " x " << stepsCount << std::endl;
+    std::cout << " . Device: " << queue.get_device().get_info<sycl::info::device::name>() << std::endl << std::endl;
 
     uint64_t start = 0;
     uint64_t end = 0;
@@ -38,15 +38,20 @@ int main(int argc, char *argv[]) {
 
         sycl::event event = queue.submit([&](sycl::handler &h) {
             auto buffer = resultBuffer.get_access<sycl::access::mode::write>(h);
+
             h.parallel_for(
                 sycl::nd_range<2>(sycl::range<2>(stepsCount, stepsCount), sycl::range<2>(groupSize, groupSize)),
                 [=](sycl::nd_item<2> item) {
+
                     float x = dx * (item.get_global_id(0) + 0.5);
                     float y = dy * (item.get_global_id(1) + 0.5);
                     float value = sycl::sin(x) * sycl::cos(y);
                     float sum = sycl::reduce_over_group(item.get_group(), value, std::plus<float>());
+
                     if (item.get_local_id(0) == 0 && item.get_local_id(1) == 0) {
+
                         buffer[item.get_group(0) * item.get_group_range(0) + item.get_group(1)] = sum;
+
                     }
                 });
         });
@@ -60,8 +65,8 @@ int main(int argc, char *argv[]) {
 
     float computed = std::accumulate(result.begin(), result.end(), 0.f) * dx * dy;
 
-    std::cout << "Kernel time: " << (end - start) / 1e+6 << " ms" << std::endl;
-    std::cout << "Expected: " << expected << std::endl;
-    std::cout << "Computed: " << computed << std::endl;
-    std::cout << "Error: " << std::abs(computed - expected) << std::endl;
+    std::cout << " . . Computing time: " << (end - start) / 1e+6 << " ms" << std::endl;
+    std::cout << " . . Expected:       " << expected << std::endl;
+    std::cout << " . . Computed:       " << computed << std::endl;
+    std::cout << " . . Error:          " << std::abs(computed - expected) << std::endl;
 }

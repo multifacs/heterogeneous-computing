@@ -6,7 +6,7 @@
 
 namespace jacobi {
 
-struct CompResult {
+struct ResultStruct {
     std::vector<float> x;
     double elapsed_all;
     double elapsed_kernel = 0;
@@ -14,11 +14,11 @@ struct CompResult {
     float accuracy;
 };
 
-CompResult calculateWithAccessor(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
+ResultStruct slauAccessor(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
                                  float accuracyTarget, sycl::queue &queue);
-CompResult calculateWithSharedMemory(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
+ResultStruct slauSharedMemory(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
                                      float accuracyTarget, sycl::queue &queue);
-CompResult calculateWithDeviceMemory(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
+ResultStruct slauDeviceMemory(const std::vector<float> &A, const std::vector<float> &b, int iterationsLimit,
                                      float accuracyTarget, sycl::queue &queue);
 
 } // namespace jacobi
