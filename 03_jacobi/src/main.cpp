@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     result = jacobi::withAccessor(A, b, iterationsLimit,
                                            accuracyTarget, queue);
     float deviation = utils::deviation(A, b, result.x);
-    std::cout << "  Accessor\n\tTime: " << result.elapsed_kernel
+    std::cout << "  Accessor\n\tTime: " << result.elapsed_all
               << " ms\n\tError: " << deviation << std::endl;
   }
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     result = jacobi::withSharedMemory(A, b, iterationsLimit,
                                                accuracyTarget, queue);
     float deviation = utils::deviation(A, b, result.x);
-    std::cout << "  Shared\n\tTime: " << result.elapsed_kernel
+    std::cout << "  Shared\n\tTime: " << result.elapsed_all
               << " ms\n\tError: " << deviation << std::endl;
   }
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     result = jacobi::withDeviceMemory(A, b, iterationsLimit,
                                                accuracyTarget, queue);
     float deviation = utils::deviation(A, b, result.x);
-    std::cout << "  Device\n\tTime: " << result.elapsed_kernel
+    std::cout << "  Device\n\tTime: " << result.elapsed_all
               << " ms\n\tError: " << deviation << std::endl;
   }
 }
