@@ -32,9 +32,7 @@ static float normAbs(const float *x0, const float *x1, size_t n) {
     return std::sqrt(s);
 }
 
-static float normRel(const float *x0, const float *x1, size_t n) {
-    return normAbs(x0, x1, n) / vectorLength(x0, n);
-}
+static float normRel(const float *x0, const float *x1, size_t n) { return 1; }
 
 static float deviationAbs(const float *a, const float *b, const float *x, int n) {
     float norm = 0;
